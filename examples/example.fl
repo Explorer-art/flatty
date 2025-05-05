@@ -1,0 +1,8 @@
+func sum (a, b) {
+	mov ax, 1
+	add ax, 2
+}
+
+func main() {
+	sum(1, 2)
+}
