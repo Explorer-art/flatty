@@ -47,3 +47,17 @@ func main() {
 	putchar('H')
 }
 ```
+
+## Пример 4
+```
+func set_register(reg, value) {
+	mov reg, value
+}
+```
+
+## Пример 5
+```
+if (ax > 2) {
+	xor ax, ax
+}
+```
