@@ -6,7 +6,6 @@ func sum (a, b) {
 func main() {
 	if (1 + 2) {
 		sum(1, 5)
-		sum(2, 7)
 	} elseif (2 + 2) {
 		sum(2, 5)
 	} else {
