@@ -107,8 +107,6 @@ class Parser(ASTNode):
 			elif group == "NUMBER":
 				buffer.append(Literal(value))
 			elif group == "COMMA":
-				print("Clear", buffer)
-
 				for node in self.parse_buffer(buffer):
 					operands.append(node)
 
@@ -140,17 +138,38 @@ class Parser(ASTNode):
 	def parse_call_func(self):
 		"""Парсинг вызова функции"""
 		func = self.current()[1]
+		self.advance()
+		args = self.parse_call_func_args()
+
+		return CallFunc(func, args)
+
+	def parse_call_func_args(self):
+		"""Парсинг параметров вызываемой функции"""
 		args = []
+		buffer = []
+
+		self.expect("LPARENT")
 
 		while self.current()[0] != "RPARENT":
-			if self.current()[0] in "REGISTER NUMBER":
-				group, value = self.current()
+			group, value = self.current()
 
-				if group == "REGISTER":
-					args.append(Register(value))
-				elif group == "NUMBER":
-					args.append(Literal(value))
+			if group == "REGISTER":
+				buffer.append(Register(value))
+			elif group == "NUMBER":
+				buffer.append(Literal(value))
+			elif group == "COMMA":
+				print("Clear", buffer)
+
+				for node in self.parse_buffer(buffer):
+					args.append(node)
+
+				buffer = []
+			else:
+				buffer.append(self.current())
 
 			self.advance()
 
-		return CallFunc(func, args)
+		for node in self.parse_buffer(buffer):
+			args.append(node)
+
+		return args
