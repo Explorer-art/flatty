@@ -55,6 +55,7 @@ class Lexer:
 		self.code = code
 
 	def tokenize(self) -> List[Token]:
+		"""Токенизация"""
 		tokens = []
 
 		for match in re.finditer(TOKEN_REGEX, self.code):

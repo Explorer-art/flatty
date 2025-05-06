@@ -5,6 +5,7 @@ class Preprocessor:
 		self.code = code
 
 	def preprocess(self) -> str:
+		"""Препроцессинг"""
 		processed_code = ""
 		lines = self.code.split("\n")
 

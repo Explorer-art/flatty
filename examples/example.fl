@@ -1,5 +1,5 @@
 func sum (a, b) {
-	mov ax, 1
+	mov ax, 1 + 2
 	add ax, 2
 }
 
