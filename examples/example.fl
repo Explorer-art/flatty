@@ -4,11 +4,13 @@ func sum (a, b) {
 }
 
 func main() {
-	if (1 + 2) {
-		sum(1, 5)
-	} elseif (2 + 2) {
-		sum(2, 5)
-	} else {
-		sum(1, 2)
+	while (ax > 2) {
+		if (1 + 2) {
+			sum(1, 5)
+		} elseif (2 + 2) {
+			sum(2, 5)
+		} else {
+			sum(1, 2)
+		}
 	}
 }

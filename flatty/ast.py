@@ -79,7 +79,7 @@ class TernaryOperation(Expression):
 
 class IfOperator(ASTNode):
 	"""Условный оператор if"""
-	def __init__(self, conditions: List, body):
+	def __init__(self, conditions: List, body: List):
 		self.conditions = conditions
 		self.body = body
 
@@ -88,7 +88,7 @@ class IfOperator(ASTNode):
 
 class ElseIfOperator(ASTNode):
 	"""Условный оператор elseif"""
-	def __init__(self, conditions: List, body):
+	def __init__(self, conditions: List, body: List):
 		self.conditions = conditions
 		self.body = body
 
@@ -97,7 +97,7 @@ class ElseIfOperator(ASTNode):
 
 class ElseOperator(ASTNode):
 	"""Условный оператор else"""
-	def __init__(self, body):
+	def __init__(self, body: List):
 		self.body = body
 
 	def __repr__(self):
@@ -118,3 +118,11 @@ class IfElseChain(ASTNode):
 			parts.append(str(self.else_branch))
 
 		return f" ".join(parts)
+
+class WhileLoop(ASTNode):
+	def __init__(self, conditions: List, body: List):
+		self.conditions = conditions
+		self.body = body
+
+	def __repr__(self):
+		return f"while ({self.conditions}) {{{", ".join(str(node) for node in self.body)}}}"

@@ -7,6 +7,10 @@ Token = Tuple[str, str]
 TOKEN_SPECIFICATION = {
 	"NUMBER": r"\d+",
 	"ID": r"[A-Za-z_][A-Za-z0-9_]*",
+	"LE": r"<=",
+	"GE": r">=",
+	"EQ": r"==",
+	"NEQ": r"!=",
 	"EQUAL": r"=",
 	"PLUS": r"\+",
 	"MINUS": r"-",
@@ -16,6 +20,8 @@ TOKEN_SPECIFICATION = {
 	"RPARENT": r"\)",
 	"LBRACE": r"\{",
 	"RBRACE": r"\}",
+	"LT": r"<",
+	"GT": r">",
 	"COMMA": r",",
 	"NEW_LINE": r"\n",
 	"MISMATCH": r"."
@@ -25,7 +31,8 @@ KEYWORDS = [
 	"func",
 	"if",
 	"elseif",
-	"else"
+	"else",
+	"while"
 ]
 
 OPCODES = [

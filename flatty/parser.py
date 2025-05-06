@@ -79,6 +79,8 @@ class Parser(ASTNode):
 				body.append(self.parse_call_func())
 			elif group == "KEYWORD" and value == "if":
 				body.append(self.parse_if_else_chain())
+			elif group == "KEYWORD" and value == "while":
+				body.append(self.parse_while_loop())
 
 			self.advance()
 
@@ -129,7 +131,7 @@ class Parser(ASTNode):
 
 		for i, node in enumerate(buffer):
 			if isinstance(node, tuple):
-				if node[0] == "PLUS" or node[0] == "MINUS" or node[0] == "STAR" or node[0] == "SLASH":
+				if node[0] in "PLUS MINUS STAR SLASH LT GT LE GE EQ NEQ":
 					return [BinaryOperation(buffer[i - 1], buffer[i + 1], node[1])]
 			else:
 				result.append(node)
@@ -229,3 +231,13 @@ class Parser(ASTNode):
 			conditions.append(condition)
 
 		return conditions
+
+	def parse_while_loop(self) -> WhileLoop:
+		"""Парсинг цикла while"""
+		self.advance()
+		conditions = self.parse_conditions()
+
+		self.advance()
+		body = self.parse_func_body()
+
+		return WhileLoop(conditions, body)
