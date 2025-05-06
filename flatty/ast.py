@@ -22,7 +22,7 @@ class Func(ASTNode):
 		self.body = body
 
 	def __repr__(self):
-		return f"Func {self.identifier} ({", ".join(self.args)}) {{{", ".join(str(opcode) for opcode in self.body)}}}"
+		return f"Func {self.identifier} ({", ".join(self.args)}) {{{", ".join(str(node) for node in self.body)}}}"
 
 class CallFunc(ASTNode):
 	"""Вызов функции"""
@@ -76,3 +76,45 @@ class TernaryOperation(Expression):
 
 	def __repr__(self):
 		return f"{self.operation}{self.operand}"
+
+class IfOperator(ASTNode):
+	"""Условный оператор if"""
+	def __init__(self, conditions: List, body):
+		self.conditions = conditions
+		self.body = body
+
+	def __repr__(self):
+		return f"if ({self.conditions}) {{{", ".join(str(node) for node in self.body)}}}"
+
+class ElseifOperator(ASTNode):
+	"""Условный оператор elseif"""
+	def __init__(self, conditions: List, body):
+		self.conditions = conditions
+		self.body = body
+
+	def __repr__(self):
+		return f"elseif ({self.conditions}) {{{", ".join(str(node) for node in self.body)}}}"
+
+class ElseOperator(ASTNode):
+	"""Условный оператор else"""
+	def __init__(self, body):
+		self.body = body
+
+	def __repr__(self):
+		return f"else {{{", ".join(str(node) for node in self.body)}}}"
+
+class IfElseChain(ASTNode):
+	"""Полная конструкция if / elseif / else"""
+	def __init__(self, if_branch: IfOperator, elseif_branches: List[ElseifOperator] = None, else_branch: ElseOperator = None):
+		self.if_branch = if_branch
+		self.elseif_branches = elseif_branches
+		self.else_branch = else_branch
+
+	def __repr__(self):
+		parts = [str(self.if_branch)]
+		parts += [str(elseif_op) for elseif_op in self.elseif_branches]
+
+		if self.else_branch:
+			parts.append(str(self.else_branch))
+
+		return f" ".join(parts)

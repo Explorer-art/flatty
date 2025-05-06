@@ -22,7 +22,10 @@ TOKEN_SPECIFICATION = {
 }
 
 KEYWORDS = [
-	"func"
+	"func",
+	"if",
+	"elseif",
+	"else"
 ]
 
 OPCODES = [
@@ -30,7 +33,8 @@ OPCODES = [
 	"add",
 	"sub",
 	"inc",
-	"dec"
+	"dec",
+	"xor"
 ]
 
 REGISTERS = [
