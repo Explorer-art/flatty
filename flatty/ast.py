@@ -86,7 +86,7 @@ class IfOperator(ASTNode):
 	def __repr__(self):
 		return f"if ({self.conditions}) {{{", ".join(str(node) for node in self.body)}}}"
 
-class ElseifOperator(ASTNode):
+class ElseIfOperator(ASTNode):
 	"""Условный оператор elseif"""
 	def __init__(self, conditions: List, body):
 		self.conditions = conditions
@@ -105,7 +105,7 @@ class ElseOperator(ASTNode):
 
 class IfElseChain(ASTNode):
 	"""Полная конструкция if / elseif / else"""
-	def __init__(self, if_branch: IfOperator, elseif_branches: List[ElseifOperator] = None, else_branch: ElseOperator = None):
+	def __init__(self, if_branch: IfOperator, elseif_branches: List[ElseIfOperator] = None, else_branch: ElseOperator = None):
 		self.if_branch = if_branch
 		self.elseif_branches = elseif_branches
 		self.else_branch = else_branch

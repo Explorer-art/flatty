@@ -192,7 +192,7 @@ class Parser(ASTNode):
 
 			self.advance()
 			body = self.parse_func_body()
-			elseif_branches.append(ElseifOperator(conditions, body))
+			elseif_branches.append(ElseIfOperator(conditions, body))
 
 		self.advance()
 
