@@ -1,16 +1,7 @@
-func sum (a, b) {
-	mov ax, 1 + 2
-	add ax, 2
+func set_ax () {
+	mov ax, 1 * 2 + 5 > 10
 }
 
 func main() {
-	while (ax > 2) {
-		if (1 + 2) {
-			sum(1, 5)
-		} elseif (2 + 2) {
-			sum(2, 5)
-		} else {
-			sum(1, 2)
-		}
-	}
+	set_ax()
 }

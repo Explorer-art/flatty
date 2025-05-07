@@ -127,16 +127,77 @@ class Parser(ASTNode):
 
 	def parse_expr(self, buffer) -> List:
 		"""Парсинг выражений в буфере"""
-		result = []
+		buffer = self.parse_multiplicative_expr(buffer)
+		buffer = self.parse_additive_expr(buffer)
+		buffer = self.parse_comparison_expr(buffer)
 
-		for i, node in enumerate(buffer):
-			if isinstance(node, tuple):
-				if node[0] in "PLUS MINUS STAR SLASH LT GT LE GE EQ NEQ":
-					return [BinaryOperation(buffer[i - 1], buffer[i + 1], node[1])]
+		print("Result", buffer)
+
+		return buffer
+
+	def parse_multiplicative_expr(self, buffer):
+		"""Парсинг выражений со знаками *, /"""
+		result = []
+		i = 0
+
+		while i < len(buffer):
+			node = buffer[i]
+
+			if isinstance(node, tuple) and node[0] in "STAR SLASH":
+				left = result.pop()
+				right = buffer[i + 1]
+
+				result.append(BinaryOperation(left, right, node[1]))
+
+				i += 2
 			else:
 				result.append(node)
+				i += 1
 
 		return result
+
+	def parse_additive_expr(self, buffer):
+		"""Парсинг выражений со знаками +, -"""
+		result = []
+		i = 0
+
+		while i < len(buffer):
+			node = buffer[i]
+
+			if isinstance(node, tuple) and node[0] in "PLUS MINUS":
+				left = result.pop()
+				right = buffer[i + 1]
+
+				result.append(BinaryOperation(left, right, node[1]))
+
+				i += 2
+			else:
+				result.append(node)
+				i += 1
+
+		return result
+
+	def parse_comparison_expr(self, buffer):
+		"""Парсинг выражений со знаками >, <, >=, <=, ==, !="""
+		result = []
+		i = 0
+
+		while i < len(buffer):
+			node = buffer[i]
+
+			if isinstance(node, tuple) and node[0] in "LT GT LE GE, EQ, NEQ":
+				left = result.pop()
+				right = buffer[i + 1]
+
+				result.append(BinaryOperation(left, right, node[1]))
+
+				i += 2
+			else:
+				result.append(node)
+				i += 1
+
+		return result
+
 
 	def parse_call_func(self) -> CallFunc:
 		"""Парсинг вызова функции"""

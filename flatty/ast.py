@@ -66,7 +66,7 @@ class BinaryOperation(Expression):
 		self.operation = operation
 
 	def __repr__(self):
-		return f"{self.left} {self.operation} {self.right}"
+		return f"({self.left} {self.operation} {self.right})"
 
 class TernaryOperation(Expression):
 	"""Тернарная операция с 1 операндом"""
