@@ -22,7 +22,7 @@ func sum(a, b) {
 }
 
 func add_sum(a, b) {
-	add ax, sum(a, b)	; Операнды как результаты вызова функций
+	add ax, sum(a, b)	// Операнды как результаты вызова функций
 }
 
 func main() {
@@ -33,8 +33,8 @@ func main() {
 ### Пример 3
 ```
 func putchar(c) {
-	; Вызываем функцию 0Eh прерывания 10h BIOS
-	; В al передаем символ
+	// Вызываем функцию 0Eh прерывания 10h BIOS
+	// В al передаем символ
 
 	f"""
 	mov ah, 0Eh
@@ -98,5 +98,50 @@ func main() {
 	for (cx = 0; cx > 10; cx++) {
 		set_ax()
 	}
+}
+```
+
+## Пример 9
+Программа которая считает сумму чисел от 1 до 10
+```
+func sum(a, b) {
+	mov ax, a
+	add ax, b
+}
+
+func main() {
+	mov cx, 1
+	mov bx, 0
+
+	while (cx <= 10) {
+		sum(bx, cx)
+		mov bx, ax
+		inc cx
+	}
+
+	mov ax, bx
+}
+```
+
+## Пример 10
+Программа которая ищет максимум из трёх чисел
+```
+func max(a, b) {
+	if (a > b) {
+		mov ax, a
+	} else {
+		mov ax, b
+	}
+}
+
+func main() {
+	mov bx, 5
+	mov cx, 8
+	mov dx, 3
+
+	max(bx, cx)		// ax = max(bx, cx)
+	max(ax, dx)		// ax = max(ax, dx)
+
+	// В результате в ax будет максимум из трёх чисел
 }
 ```

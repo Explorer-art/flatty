@@ -1,9 +1,19 @@
-func set_ax () {
-	mov ax, 1 * 2 + 5 > 10
+//
+// Программа которая ищет максимум из трёх чисел
+//
+
+func max(a, b) {
+	xor ax, ax
+	for (cx = 0; cx < a + b; cx++) {
+		add ax, cx
+	}
 }
 
 func main() {
-	for (cx = 0; cx < 10; cx++) {
-		set_ax()
-	}
+	mov bx, 5
+	mov cx, 8
+	mov dx, 3
+
+	max(bx, cx)
+	max(ax, dx)
 }

@@ -6,6 +6,7 @@ class Parser(ASTNode):
 	def __init__(self, tokens) -> List:
 		self.tokens = tokens
 		self.pos = 0
+		self.current_func = None
 
 	def current(self):
 		"""Получить текущий токен"""
@@ -40,29 +41,35 @@ class Parser(ASTNode):
 	def parse_func(self) -> Func:
 		"""Парсинг функции"""
 		self.advance()
+		if self.current()[0] == "OPCODE":
+			print("error: function name matches the opcode")
+			sys.exit()
+
 		identifier = self.expect(["ID"])
 		self.advance()
 
-		args = self.parse_func_args()
+		params = self.parse_func_params()
+		self.current_func = {"name": identifier, "params": params}
+
 		self.advance()
 		body = self.parse_func_body()
 
-		return Func(identifier, args, body)
+		return Func(identifier, params, body)
 
-	def parse_func_args(self) -> List:
+	def parse_func_params(self) -> List:
 		"""Парсинг параметров функции"""
 		self.expect(["LPARENT"])
 		self.advance()
 
-		args = []
+		params = []
 
 		while self.current()[0] != "RPARENT":
 			if self.current()[0] == "ID":
-				args.append(self.current()[1])
+				params.append(self.current()[1])
 
 			self.advance()
 
-		return args
+		return params
 
 	def parse_func_body(self) -> List:
 		"""Парсинг тела функции"""
@@ -73,6 +80,7 @@ class Parser(ASTNode):
 
 		while self.current()[0] != "RBRACE":
 			group, value = self.current()
+
 			if group == "OPCODE":
 				body.append(self.parse_instruction())
 			elif group == "ID" and self.tokens[self.pos + 1][0] == "LPARENT":
@@ -114,6 +122,10 @@ class Parser(ASTNode):
 				buffer.append(Register(value))
 			elif group == "NUMBER":
 				buffer.append(Literal(value))
+			elif group == "ID" and self.tokens[self.pos + 1][0] == "LPARENT":
+				buffer.append(self.parse_call_func())
+			elif group == "ID" and value in self.current_func["params"]:
+				buffer.append(Parameter(value))
 			elif group == "COMMA":
 				operands.append(self.parse_expr(buffer))
 				buffer = []
@@ -289,6 +301,10 @@ class Parser(ASTNode):
 				buffer.append(Register(value))
 			elif group == "NUMBER":
 				buffer.append(Literal(value))
+			elif group == "ID" and self.tokens[self.pos + 1][0] == "LPARENT":
+				buffer.append(self.parse_call_func())
+			elif group == "ID" and value in self.current_func["params"]:
+				buffer.append(Parameter(value))
 			else:
 				buffer.append(self.current())
 
@@ -352,6 +368,10 @@ class Parser(ASTNode):
 				buffer.append(Register(value))
 			elif group == "NUMBER":
 				buffer.append(Literal(value))
+			elif group == "ID" and self.tokens[self.pos + 1][0] == "LPARENT":
+				buffer.append(self.parse_call_func())
+			elif group == "ID" and value in self.current_func["params"]:
+				buffer.append(Parameter(value))
 			elif group == "SEMICOLON":
 				count_semicolon += 1
 

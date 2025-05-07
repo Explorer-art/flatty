@@ -49,6 +49,14 @@ class Literal(ASTNode):
 	def __repr__(self):
 		return f"{self.value}"
 
+class Parameter(ASTNode):
+	"""Параметр функции"""
+	def __init__(self, parameter: str):
+		self.parameter = parameter
+
+	def __repr__(self):
+		return f"{self.parameter}"
+
 class Instruction(ASTNode):
 	"""Инструкция ассемблера"""
 	def __init__(self, opcode: str, operands: List):
