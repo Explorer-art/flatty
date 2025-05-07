@@ -22,6 +22,7 @@ TOKEN_SPECIFICATION = {
 	"RBRACE": r"\}",
 	"LT": r"<",
 	"GT": r">",
+	"SEMICOLON": r";",
 	"COMMA": r",",
 	"NEW_LINE": r"\n",
 	"MISMATCH": r"."
@@ -32,13 +33,15 @@ KEYWORDS = [
 	"if",
 	"elseif",
 	"else",
-	"while"
+	"while",
+	"for"
 ]
 
 OPCODES = [
 	"mov",
 	"add",
 	"sub",
+	"mul",
 	"inc",
 	"dec",
 	"xor"

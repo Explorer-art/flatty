@@ -80,7 +80,11 @@ class Parser(ASTNode):
 			elif group == "KEYWORD" and value == "if":
 				body.append(self.parse_if_else_chain())
 			elif group == "KEYWORD" and value == "while":
-				body.append(self.parse_while_loop())
+				body.append(self.parse_while_do_loop())
+			elif group == "LBRACE" and self.tokens[self.pos - 1][0] != "RPARENT":
+				body.append(self.parse_do_while_loop())
+			elif group == "KEYWORD" and value == "for":
+				body.append(self.parse_for_loop())
 
 			self.advance()
 
@@ -103,7 +107,7 @@ class Parser(ASTNode):
 			group, value = self.current()
 
 			if group == "COMMA" and len(buffer) == 0:
-				print("Syntax error")
+				print("Syntax error in instruction operands")
 				sys.exit()
 
 			if group == "REGISTER":
@@ -111,39 +115,83 @@ class Parser(ASTNode):
 			elif group == "NUMBER":
 				buffer.append(Literal(value))
 			elif group == "COMMA":
-				for node in self.parse_expr(buffer):
-					operands.append(node)
-
+				operands.append(self.parse_expr(buffer))
 				buffer = []
 			else:
 				buffer.append(self.current())
 
 			self.advance()
 
-		for node in self.parse_expr(buffer):
-			operands.append(node)
+		operands.append(self.parse_expr(buffer))
 
 		return operands
 
-	def parse_expr(self, buffer) -> List:
+	def parse_expr(self, buffer) -> Expression:
 		"""Парсинг выражений в буфере"""
-		buffer = self.parse_multiplicative_expr(buffer)
-		buffer = self.parse_additive_expr(buffer)
-		buffer = self.parse_comparison_expr(buffer)
+		buffer = self.parse_prefix_operation(buffer, ["PLUS"])
+		buffer = self.parse_prefix_operation(buffer, ["MINUS"])
+		buffer = self.parse_postfix_operation(buffer, ["PLUS"])
+		buffer = self.parse_postfix_operation(buffer, ["MINUS"])
+		buffer = self.parse_binary_opeartion(buffer, ["STAR", "SLASH"])
+		buffer = self.parse_binary_opeartion(buffer, ["PLUS", "MINUS"])
+		buffer = self.parse_binary_opeartion(buffer, ["LT", "GT", "LE", "GE", "EQ", "NEQ"])
+		buffer = self.parse_binary_opeartion(buffer, ["EQUAL"])
 
-		print("Result", buffer)
+		return buffer[0] if buffer else None
 
-		return buffer
+	def parse_prefix_operation(self, buffer, operations):
+		"""Парсинг префиксных операций в выражении"""
+		result = []
+		i = 0
 
-	def parse_multiplicative_expr(self, buffer):
-		"""Парсинг выражений со знаками *, /"""
+		while i < len(buffer):
+			if (i + 2 < len(buffer)
+				and isinstance(buffer[i], tuple)
+				and buffer[i][0] in operations
+				and isinstance(buffer[i + 1], tuple)
+				and buffer[i + 1][0] in operations
+			):
+				result.append(TernaryOperation(buffer[i + 2], str(buffer[i][1]) + str(buffer[i + 1][1]), "prefix"))
+
+				i += 3
+			else:
+				result.append(buffer[i])
+				i += 1
+
+		return result
+
+	def parse_postfix_operation(self, buffer, operations):
+		"""Парсинг постфиксных операций в выражении"""
+		result = []
+		i = 0
+
+		while i < len(buffer):
+			if (i + 1 < len(buffer)
+				and isinstance(buffer[i], tuple)
+				and buffer[i][0] in operations
+				and isinstance(buffer[i + 1], tuple)
+				and buffer[i + 1][0] in operations
+			):
+				operand = result.pop()
+
+				result.append(TernaryOperation(operand, str(buffer[i][1]) + str(buffer[i + 1][1]), "postfix"))
+
+				i += 2
+			else:
+				result.append(buffer[i])
+				i += 1
+
+		return result
+
+	def parse_binary_opeartion(self, buffer, operations):
+		"""Парсинг бинарных операций в выражении"""
 		result = []
 		i = 0
 
 		while i < len(buffer):
 			node = buffer[i]
 
-			if isinstance(node, tuple) and node[0] in "STAR SLASH":
+			if isinstance(node, tuple) and node[0] in operations:
 				left = result.pop()
 				right = buffer[i + 1]
 
@@ -155,49 +203,6 @@ class Parser(ASTNode):
 				i += 1
 
 		return result
-
-	def parse_additive_expr(self, buffer):
-		"""Парсинг выражений со знаками +, -"""
-		result = []
-		i = 0
-
-		while i < len(buffer):
-			node = buffer[i]
-
-			if isinstance(node, tuple) and node[0] in "PLUS MINUS":
-				left = result.pop()
-				right = buffer[i + 1]
-
-				result.append(BinaryOperation(left, right, node[1]))
-
-				i += 2
-			else:
-				result.append(node)
-				i += 1
-
-		return result
-
-	def parse_comparison_expr(self, buffer):
-		"""Парсинг выражений со знаками >, <, >=, <=, ==, !="""
-		result = []
-		i = 0
-
-		while i < len(buffer):
-			node = buffer[i]
-
-			if isinstance(node, tuple) and node[0] in "LT GT LE GE, EQ, NEQ":
-				left = result.pop()
-				right = buffer[i + 1]
-
-				result.append(BinaryOperation(left, right, node[1]))
-
-				i += 2
-			else:
-				result.append(node)
-				i += 1
-
-		return result
-
 
 	def parse_call_func(self) -> CallFunc:
 		"""Парсинг вызова функции"""
@@ -213,6 +218,7 @@ class Parser(ASTNode):
 		buffer = []
 
 		self.expect("LPARENT")
+		self.advance()
 
 		while self.current()[0] != "RPARENT":
 			group, value = self.current()
@@ -222,8 +228,7 @@ class Parser(ASTNode):
 			elif group == "NUMBER":
 				buffer.append(Literal(value))
 			elif group == "COMMA":
-				for node in self.parse_expr(buffer):
-					args.append(node)
+				args.append(self.parse_expr(buffer))
 
 				buffer = []
 			else:
@@ -231,19 +236,21 @@ class Parser(ASTNode):
 
 			self.advance()
 
-		for node in self.parse_expr(buffer):
-			args.append(node)
+		arg = self.parse_expr(buffer)
+
+		if arg:
+			args.append(arg)
 
 		return args
 
 	def parse_if_else_chain(self) -> IfElseChain:
 		"""Парсинг конструкции if / elseif / else"""
 		self.advance()
-		conditions = self.parse_conditions()
+		condition = self.parse_condition()
 
 		self.advance()
 		body = self.parse_func_body()
-		if_branch = IfOperator(conditions, body)
+		if_branch = IfOperator(condition, body)
 
 		self.advance()
 
@@ -251,11 +258,11 @@ class Parser(ASTNode):
 
 		while self.current() and self.current()[1] == "elseif":
 			self.advance()
-			conditions = self.parse_conditions()
+			condition = self.parse_condition()
 
 			self.advance()
 			body = self.parse_func_body()
-			elseif_branches.append(ElseIfOperator(conditions, body))
+			elseif_branches.append(ElseIfOperator(condition, body))
 
 		self.advance()
 
@@ -268,12 +275,11 @@ class Parser(ASTNode):
 
 		return IfElseChain(if_branch, elseif_branches, else_branch)
 
-	def parse_conditions(self) -> List:
+	def parse_condition(self) -> Expression:
 		"""Парсинг условий"""
 		self.expect("LPARENT")
 		self.advance()
 
-		conditions = []
 		buffer = []
 
 		while self.current()[0] != "RPARENT":
@@ -288,17 +294,79 @@ class Parser(ASTNode):
 
 			self.advance()
 
-		for condition in self.parse_expr(buffer):
-			conditions.append(condition)
+		return self.parse_expr(buffer)
 
-		return conditions
-
-	def parse_while_loop(self) -> WhileLoop:
+	def parse_while_do_loop(self) -> WhileDoLoop:
 		"""Парсинг цикла while"""
 		self.advance()
-		conditions = self.parse_conditions()
+		condition = self.parse_condition()
 
 		self.advance()
 		body = self.parse_func_body()
 
-		return WhileLoop(conditions, body)
+		return WhileDoLoop(condition, body)
+
+	def parse_do_while_loop(self) -> DoWhileLoop:
+		"""Парсинг цикла do while"""
+		body = self.parse_func_body()
+
+		self.advance()
+
+		if self.current()[0] != "KEYWORD" or self.current()[1] != "while":
+			print("Syntax error in do while loop")
+			sys.exit()
+
+		self.advance()
+		condition = self.parse_condition()
+
+		return DoWhileLoop(condition, body)
+
+	def parse_for_loop(self) -> ForLoop:
+		"""Парсинг цикла for"""
+		self.advance()
+		counter, condition, operation = self.parse_for_init()
+		body = self.parse_func_body()
+
+		return ForLoop(counter, condition, operation, body)
+
+	def parse_for_init(self):
+		"""Парсинг блока инициализации цикла for"""
+		self.expect("LPARENT")
+		self.advance()
+
+		counter = None
+		condition = None
+		operation = None
+
+		buffer = []
+		count_semicolon = 0
+
+		while self.current()[0] != "RPARENT":
+			group, value = self.current()
+
+			if group == "COMMA" and len(buffer) == 0:
+				print("Syntax error in for loop")
+				sys.exit()
+
+			if group == "REGISTER":
+				buffer.append(Register(value))
+			elif group == "NUMBER":
+				buffer.append(Literal(value))
+			elif group == "SEMICOLON":
+				count_semicolon += 1
+
+				if count_semicolon == 1:
+					counter = self.parse_expr(buffer)
+				elif count_semicolon == 2:
+					condition = self.parse_expr(buffer)
+
+				buffer = []
+			else:
+				buffer.append(self.current())
+
+			self.advance()
+
+		operation = self.parse_expr(buffer)
+		self.advance()
+
+		return counter, condition, operation

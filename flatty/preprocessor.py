@@ -11,7 +11,7 @@ class Preprocessor:
 
 		# Удаляем все комментарии и удалеяем лишние пробелы
 		for line in lines:
-			comment_index = line.find(";")
+			comment_index = line.find("//")
 
 			if comment_index != -1:
 				line = line[:comment_index].rstrip()

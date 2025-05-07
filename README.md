@@ -61,3 +61,42 @@ if (ax > 2) {
 	xor ax, ax
 }
 ```
+
+## Пример 6
+```
+func set_ax () {
+	mov ax, 1 * 2 + 5 > 10
+}
+
+func main() {
+	while (ax > 2 + 2 * 2) {
+		set_ax()
+	}
+}
+```
+
+## Пример 7
+```
+func set_ax () {
+	mov ax, 1 * 2 + 5 > 10
+}
+
+func main() {
+	{
+		set_ax()
+	} while (ax > 2 + 2 * 2)
+}
+```
+
+## Пример 8
+```
+func set_ax () {
+	mov ax, 1 * 2 + 5 > 10
+}
+
+func main() {
+	for (cx = 0; cx > 10; cx++) {
+		set_ax()
+	}
+}
+```

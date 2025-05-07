@@ -3,5 +3,7 @@ func set_ax () {
 }
 
 func main() {
-	set_ax()
+	for (cx = 0; cx < 10; cx++) {
+		set_ax()
+	}
 }

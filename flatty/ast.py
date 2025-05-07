@@ -16,13 +16,13 @@ class Program(ASTNode):
 
 class Func(ASTNode):
 	"""Определение функции"""
-	def __init__(self, identifier: str, args: List, body: List):
+	def __init__(self, identifier: str, param: List, body: List):
 		self.identifier = identifier
-		self.args = args
+		self.param = param
 		self.body = body
 
 	def __repr__(self):
-		return f"Func {self.identifier} ({", ".join(self.args)}) {{{", ".join(str(node) for node in self.body)}}}"
+		return f"Func {self.identifier} ({", ".join(self.param)}) {{{", ".join(str(node) for node in self.body)}}}"
 
 class CallFunc(ASTNode):
 	"""Вызов функции"""
@@ -70,30 +70,34 @@ class BinaryOperation(Expression):
 
 class TernaryOperation(Expression):
 	"""Тернарная операция с 1 операндом"""
-	def __init__(self, operand: ASTNode, operation: str):
+	def __init__(self, operand: ASTNode, operation: str, type: str):
 		self.operand = operand
 		self.operation = operation
+		self.type = type
 
 	def __repr__(self):
-		return f"{self.operation}{self.operand}"
+		if self.type == "prefix":
+			return f"({self.operation}{self.operand})"
+		elif self.type == "postfix":
+			return f"({self.operand}{self.operation})"
 
 class IfOperator(ASTNode):
 	"""Условный оператор if"""
-	def __init__(self, conditions: List, body: List):
-		self.conditions = conditions
+	def __init__(self, condition: Expression, body: List):
+		self.condition = condition
 		self.body = body
 
 	def __repr__(self):
-		return f"if ({self.conditions}) {{{", ".join(str(node) for node in self.body)}}}"
+		return f"if ({self.condition}) {{{", ".join(str(node) for node in self.body)}}}"
 
 class ElseIfOperator(ASTNode):
 	"""Условный оператор elseif"""
-	def __init__(self, conditions: List, body: List):
-		self.conditions = conditions
+	def __init__(self, condition: Expression, body: List):
+		self.condition = condition
 		self.body = body
 
 	def __repr__(self):
-		return f"elseif ({self.conditions}) {{{", ".join(str(node) for node in self.body)}}}"
+		return f"elseif ({self.condition}) {{{", ".join(str(node) for node in self.body)}}}"
 
 class ElseOperator(ASTNode):
 	"""Условный оператор else"""
@@ -119,10 +123,28 @@ class IfElseChain(ASTNode):
 
 		return f" ".join(parts)
 
-class WhileLoop(ASTNode):
-	def __init__(self, conditions: List, body: List):
-		self.conditions = conditions
+class WhileDoLoop(ASTNode):
+	def __init__(self, condition: Expression, body: List):
+		self.condition = condition
 		self.body = body
 
 	def __repr__(self):
-		return f"while ({self.conditions}) {{{", ".join(str(node) for node in self.body)}}}"
+		return f"while ({self.condition}) {{{", ".join(str(node) for node in self.body)}}}"
+
+class DoWhileLoop(ASTNode):
+	def __init__(self, condition: Expression, body: List):
+		self.condition = condition
+		self.body = body
+
+	def __repr__(self):
+		return f"{{{", ".join(str(node) for node in self.body)}}} while ({self.condition})"
+
+class ForLoop(ASTNode):
+	def __init__(self, counter, condition: Expression, operation: Expression, body: List):
+		self.counter = counter
+		self.condition = condition
+		self.operation = operation
+		self.body = body
+
+	def __repr__(self):
+		return f"for ({self.counter}; {self.condition}; {self.operation}) {{{", ".join(str(node) for node in self.body)}}}"
