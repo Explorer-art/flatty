@@ -152,3 +152,4 @@ class CodeGenerator:
 
 	def generate_call_func(self, call_func_node: CallFunc) -> str:
 		"""Генерация кода вызова функции"""
+		pass
