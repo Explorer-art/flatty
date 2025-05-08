@@ -16,13 +16,13 @@ class Program(ASTNode):
 
 class Func(ASTNode):
 	"""Определение функции"""
-	def __init__(self, identifier: str, param: List, body: List):
-		self.identifier = identifier
-		self.param = param
+	def __init__(self, name: str, params: List, body: List):
+		self.name = name
+		self.params = params
 		self.body = body
 
 	def __repr__(self):
-		return f"Func {self.identifier} ({", ".join(self.param)}) {{{", ".join(str(node) for node in self.body)}}}"
+		return f"Func {self.name} ({", ".join(self.params)}) {{{", ".join(str(node) for node in self.body)}}}"
 
 class CallFunc(ASTNode):
 	"""Вызов функции"""
@@ -35,11 +35,11 @@ class CallFunc(ASTNode):
 
 class Register(ASTNode):
 	"""Регистр"""
-	def __init__(self, register_name: str):
-		self.register_name = register_name
+	def __init__(self, name: str):
+		self.name = name
 
 	def __repr__(self):
-		return f"{self.register_name}"
+		return f"{self.name}"
 
 class Literal(ASTNode):
 	"""Литерал. Нужен для представления константных значений"""
@@ -51,11 +51,11 @@ class Literal(ASTNode):
 
 class Parameter(ASTNode):
 	"""Параметр функции"""
-	def __init__(self, parameter: str):
-		self.parameter = parameter
+	def __init__(self, name: str):
+		self.name = name
 
 	def __repr__(self):
-		return f"{self.parameter}"
+		return f"{self.name}"
 
 class Instruction(ASTNode):
 	"""Инструкция ассемблера"""
@@ -76,7 +76,7 @@ class BinaryOperation(Expression):
 	def __repr__(self):
 		return f"({self.left} {self.operation} {self.right})"
 
-class TernaryOperation(Expression):
+class UnaryOperation(Expression):
 	"""Тернарная операция с 1 операндом"""
 	def __init__(self, operand: ASTNode, operation: str, type: str):
 		self.operand = operand

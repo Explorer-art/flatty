@@ -4,6 +4,7 @@ import argparse
 from preprocessor import Preprocessor
 from lexer import Lexer
 from parser import Parser
+from generator import CodeGenerator
 
 DEBUG = True
 
@@ -28,11 +29,19 @@ def compile(code, flags):
 
 	# Парсинг
 	parser = Parser(tokens)
-	ast = parser.parse()
+	program = parser.parse()
 
 	if DEBUG:
 		print("AST:")
-		print(ast)
+		print(program)
+		print("")
+
+	generator = CodeGenerator(program)
+	assembly = generator.generate()
+
+	if DEBUG:
+		print("Assembly:")
+		print(assembly)
 		print("")
 
 if __name__ == "__main__":

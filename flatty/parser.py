@@ -163,7 +163,7 @@ class Parser(ASTNode):
 				and isinstance(buffer[i + 1], tuple)
 				and buffer[i + 1][0] in operations
 			):
-				result.append(TernaryOperation(buffer[i + 2], str(buffer[i][1]) + str(buffer[i + 1][1]), "prefix"))
+				result.append(UnaryOperation(buffer[i + 2], str(buffer[i][1]) + str(buffer[i + 1][1]), "prefix"))
 
 				i += 3
 			else:
@@ -186,7 +186,7 @@ class Parser(ASTNode):
 			):
 				operand = result.pop()
 
-				result.append(TernaryOperation(operand, str(buffer[i][1]) + str(buffer[i + 1][1]), "postfix"))
+				result.append(UnaryOperation(operand, str(buffer[i][1]) + str(buffer[i + 1][1]), "postfix"))
 
 				i += 2
 			else:
