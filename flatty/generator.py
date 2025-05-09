@@ -7,12 +7,14 @@ class CodeGenerator:
 		self.registers = ["ax", "bx", "cx", "dx"]
 		self.code = ""
 		self.is_first = False # Флаг для первой обработки выражения
+		self.temp_register = None # Временный регистр
+		self.used_temp_register = False # Флаг использования временного регистра
 
 	def get_parameter_index(self, parameter_name: str, func_node: Func):
 		"""Получить индекс параметра в функции"""
 		return func_node.params.index(parameter_name)
 
-	def get_free_register(self, expr: Expression):
+	def get_free_register(self, expr: Expression, operands_used_registers=None):
 		used_registers = []
 
 		if isinstance(expr, BinaryOperation):
@@ -21,9 +23,17 @@ class CodeGenerator:
 		elif isinstance(expr, UnaryOperation):
 			used_registers = self.get_used_registers(expr.operand, used_registers)
 
+		used_registers += operands_used_registers
+
 		free_registers = [reg for reg in self.registers if reg not in used_registers]
 
 		if free_registers:
+			if not self.used_temp_register:
+				self.used_temp_register = True
+				self.code += f"push {free_registers[0]}\n"
+
+			self.temp_register = free_registers[0]
+
 			return free_registers[0]
 
 		return None
@@ -55,6 +65,9 @@ class CodeGenerator:
 			self.code += "mov bp, sp\n"
 		self.generate_func_body(func_node)
 
+		if self.used_temp_register:
+			self.code += f"pop {self.temp_register}\n"
+
 		if len(func_node.params) > 0:
 			self.code += "pop bp\n"
 
@@ -70,6 +83,12 @@ class CodeGenerator:
 		"""Генерация кода инструкции"""
 		parts = []
 
+		used_registers = []
+
+		for operand in instruction_node.operands:
+			if isinstance(operand, Register):
+				used_registers.append(operand.name)
+
 		for operand in instruction_node.operands:
 			if isinstance(operand, Literal):
 				parts.append(operand.value)
@@ -83,23 +102,24 @@ class CodeGenerator:
 				parts.append(f"[bp + {index * 2 + 4}]")
 			elif isinstance(operand, Expression):
 				self.is_first = True
-				parts.append(str(self.generate_expression(operand)))
+				self.used_temp_register = False
+				parts.append(str(self.generate_expression(operand, used_registers)))
 			else:
 				print(f"error: unsupported operand type: {type(operand)}")
 				sys.exit()
 
 		self.code += f"{instruction_node.opcode} {', '.join(parts)}\n"
 
-	def generate_expression(self, expr: Expression):
+	def generate_expression(self, expr: Expression, used_registers=None):
 		"""Генерация кода выражения"""
 		result = None
 
 		if isinstance(expr, BinaryOperation):
-			left = self.generate_expression(expr.left)
-			right = self.generate_expression(expr.right)
+			left = self.generate_expression(expr.left, used_registers)
+			right = self.generate_expression(expr.right, used_registers)
 
 			if expr.operation == "+":
-				temp_reg = self.get_free_register(expr)
+				temp_reg = self.get_free_register(expr, used_registers)
 
 				if self.is_first:
 					self.is_first = False
@@ -108,7 +128,7 @@ class CodeGenerator:
 				self.code += f"add {temp_reg}, {right}\n"
 				return temp_reg
 			elif expr.operation == "-":
-				temp_reg = self.get_free_register(expr)
+				temp_reg = self.get_free_register(expr, used_registers)
 
 				if self.is_first:
 					self.is_first = False
@@ -117,14 +137,14 @@ class CodeGenerator:
 				self.code += f"sub {temp_reg}, {right}\n"
 				return temp_reg
 		elif isinstance(expr, UnaryOperation):
-			operand = self.generate_expression(expr.operand)
+			operand = self.generate_expression(expr.operand, used_registers)
 
 			if expr.operation == "++":
 				if expr.type == "prefix":
 					self.code += f"inc {operand}"
 					return operand
 				elif expr.type == "postfix":
-					temp_reg = self.get_free_register(expr)
+					temp_reg = self.get_free_register(expr, used_registers)
 
 					self.code += f"mov {temp_reg}, {operand}\n"
 					self.code += f"inc {operand}"
@@ -134,7 +154,7 @@ class CodeGenerator:
 					self.code += f"dec {operand}"
 					return operand
 				elif expr.type == "postfix":
-					temp_reg = self.get_free_register(expr)
+					temp_reg = self.get_free_register(expr, used_registers)
 
 					self.code += f"mov {temp_reg}, {operand}\n"
 					self.code += f"dec {operand}"
