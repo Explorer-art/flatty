@@ -26,12 +26,12 @@ class Func(ASTNode):
 
 class CallFunc(ASTNode):
 	"""Вызов функции"""
-	def __init__(self, func: str, args: List):
-		self.func = func
+	def __init__(self, func_name: str, args: List):
+		self.func_name = func_name
 		self.args = args
 
 	def __repr__(self):
-		return f"{self.func}({", ".join(str(arg) for arg in self.args)})"
+		return f"{self.func_name}({", ".join(str(arg) for arg in self.args)})"
 
 class Register(ASTNode):
 	"""Регистр"""

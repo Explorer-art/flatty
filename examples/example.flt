@@ -1,3 +1,7 @@
-func max() {
-	add ax, cx + bx + 2
+func sum(a, b) {
+	mov ax, a + b
+}
+
+func main() {
+	sum(1, 2)
 }
