@@ -44,7 +44,9 @@ OPCODES = [
 	"mul",
 	"inc",
 	"dec",
-	"xor"
+	"xor",
+	"push",
+	"pop"
 ]
 
 REGISTERS = [

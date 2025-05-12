@@ -1,7 +1,8 @@
-func sum(a, b) {
-	mov ax, a + b
+func push_sum(a, b) {
+	push 2
+	pop ax
 }
 
 func main() {
-	sum(1, 2)
+	push_sum(1, ax + 2)
 }
