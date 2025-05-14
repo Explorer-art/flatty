@@ -49,6 +49,9 @@ def compile(code, flags):
 		print(assembly)
 		print("")
 
+	with open(flags.output_file, "w") as file:
+		file.write(assembly)
+
 if __name__ == "__main__":
 	if sys.platform == "windows":
 		default_format = "win32"

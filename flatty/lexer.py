@@ -61,7 +61,11 @@ REGISTERS = [
 	"ah",
 	"bh",
 	"ch",
-	"dh"
+	"dh",
+	"di",
+	"si",
+	"bp",
+	"sp"
 ]
 
 TOKEN_REGEX = "|".join(f"(?P<{name}>{pattern})" for name, pattern in TOKEN_SPECIFICATION.items())

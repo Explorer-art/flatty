@@ -239,6 +239,8 @@ class Parser(ASTNode):
 				buffer.append(Register(value))
 			elif group == "NUMBER":
 				buffer.append(Literal(value))
+			elif group == "ID" and self.tokens[self.pos + 1][0] == "LPARENT":
+				buffer.append(self.parse_call_func())
 			elif group == "COMMA":
 				args.append(self.parse_expr(buffer))
 

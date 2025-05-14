@@ -1,8 +1,16 @@
+func get_bx() {
+	mov ax, bx
+}
+
+func set_ax(a) {
+	mov ax, a
+}
+
 func push_sum(a, b) {
-	push 2
-	pop ax
+	mov ax, set_ax(get_bx())
+	add ax, b
 }
 
 func main() {
-	push_sum(1, ax + 2)
+	push_sum(1, 2)
 }
