@@ -37,42 +37,13 @@ KEYWORDS = [
 	"for"
 ]
 
-OPCODES = [
-	"mov",
-	"add",
-	"sub",
-	"mul",
-	"inc",
-	"dec",
-	"xor",
-	"push",
-	"pop"
-]
-
-REGISTERS = [
-	"ax",
-	"bx",
-	"cx",
-	"dx",
-	"al",
-	"bl",
-	"cl",
-	"dl",
-	"ah",
-	"bh",
-	"ch",
-	"dh",
-	"di",
-	"si",
-	"bp",
-	"sp"
-]
-
 TOKEN_REGEX = "|".join(f"(?P<{name}>{pattern})" for name, pattern in TOKEN_SPECIFICATION.items())
 
 class Lexer:
-	def __init__(self, code):
+	def __init__(self, code, registers, opcodes):
 		self.code = code
+		self.registers = registers
+		self.opcodes = opcodes
 
 	def tokenize(self) -> List[Token]:
 		"""Токенизация"""
@@ -84,9 +55,9 @@ class Lexer:
 
 			if value in KEYWORDS:
 				tokens.append(("KEYWORD", value))
-			elif value in OPCODES:
+			elif value in self.opcodes:
 				tokens.append(("OPCODE", value))
-			elif value in REGISTERS:
+			elif value in self.registers:
 				tokens.append(("REGISTER", value))
 			elif group != "MISMATCH":
 				tokens.append((group, value))

@@ -2,6 +2,10 @@ import sys
 from typing import List
 from ast import *
 
+class ParserError(Exception):
+	def __init__(self, message, position=None):
+		super().__init__(f"{message} at token position {position}")
+
 class Parser(ASTNode):
 	def __init__(self, tokens) -> List:
 		self.tokens = tokens
@@ -21,8 +25,7 @@ class Parser(ASTNode):
 		if self.current() and self.current()[0] in token_types:
 			return self.current()[1]
 		else:
-			print(f"Error: expected token type {token_types}")
-			sys.exit()
+			raise ParserError(f"expected token type {token_types}", position=self.pos)
 
 	def parse(self) -> Program:
 		"""Парсинг"""
@@ -41,9 +44,10 @@ class Parser(ASTNode):
 	def parse_func(self) -> Func:
 		"""Парсинг функции"""
 		self.advance()
-		if self.current()[0] == "OPCODE":
-			print("error: function name matches the opcode")
-			sys.exit()
+
+		# Если название функции равно опкоду или регистру выдаем ошибку
+		if self.current()[0] == "OPCODE" or self.current()[0] == "REGISTER":
+			raise ParserError("function name matches the opcode", position=self.pos)
 
 		identifier = self.expect(["ID"])
 		self.advance()
@@ -115,8 +119,7 @@ class Parser(ASTNode):
 			group, value = self.current()
 
 			if group == "COMMA" and len(buffer) == 0:
-				print("Syntax error in instruction operands")
-				sys.exit()
+				raise ParserError("expected operand before ','", position=self.pos)
 
 			if group == "REGISTER":
 				buffer.append(Register(value))
@@ -330,9 +333,8 @@ class Parser(ASTNode):
 
 		self.advance()
 
-		if self.current()[0] != "KEYWORD" or self.current()[1] != "while":
-			print("Syntax error in do while loop")
-			sys.exit()
+		if self.current()[1] != "while":
+			raise ParserError("expected keyword 'while' after '}'", position=self.pos)
 
 		self.advance()
 		condition = self.parse_condition()
@@ -362,9 +364,8 @@ class Parser(ASTNode):
 		while self.current()[0] != "RPARENT":
 			group, value = self.current()
 
-			if group == "COMMA" and len(buffer) == 0:
-				print("Syntax error in for loop")
-				sys.exit()
+			if group == "SEMICOLON" and len(buffer) == 0:
+				raise ParserError("expected for init before ';'", position=self.pos)
 
 			if group == "REGISTER":
 				buffer.append(Register(value))

@@ -1,10 +1,9 @@
 import sys
 from ast import *
 
-class x86_16_CodeGenerator:
+class RealModeGenerator:
 	def __init__(self, program: Program):
 		self.program = program
-		self.registers = ["ax", "bx", "cx", "dx"]
 		self.code = ""
 		self.current_func = None # Текущая обрабатываемая функция
 
@@ -18,8 +17,8 @@ class x86_16_CodeGenerator:
 			self.current_func = func
 			self.generate_func(func)
 
-		code = "bits 16\n"
-		code += "jmp start\n"
+		code = "bits 16\n\n"
+		code += "jmp start\n\n"
 		code += self.code
 
 		return code

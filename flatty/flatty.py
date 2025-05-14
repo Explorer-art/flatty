@@ -4,7 +4,7 @@ import argparse
 from preprocessor import Preprocessor
 from lexer import Lexer
 from parser import Parser
-from generators import x86_16_CodeGenerator
+from arch.x86.generators import RealModeGenerator
 
 DEBUG = True
 
@@ -18,8 +18,14 @@ def compile(code, flags):
 		print(code)
 		print("")
 
+	if flags.format == "bin16":
+		from arch.x86.modes.realmode import REGISTERS, OPCODES
+	else:
+		print("error: unknown format output file")
+		sys.exit()
+
 	# Токенизация
-	lexer = Lexer(code)
+	lexer = Lexer(code, REGISTERS, OPCODES)
 	tokens = lexer.tokenize()
 
 	if DEBUG:
@@ -36,8 +42,8 @@ def compile(code, flags):
 		print(program)
 		print("")
 
-	if flags.format == "x86_16":
-		generator = x86_16_CodeGenerator(program)
+	if flags.format == "bin16":
+		generator = RealModeGenerator(program)
 	else:
 		print("error: unknown format output file")
 		sys.exit()
